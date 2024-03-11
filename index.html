@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokémon Memory Game</title>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f2f2f2;
+    }
+
+    #gameBoard {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        width: 100px;
+        height: 100px;
+        background: #f0f0f0;
+        margin: 5px;
+        display: inline-block;
+        text-align: center;
+        line-height: 100px;
+        cursor: pointer;
+        font-size: 20px;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+    .card:hover {
+        background: #dcdcdc;
+    }
+</style>
+</head>
+<body>
+
+<div id="gameBoard"></div>
+
+<script>
+// Khai báo một mảng chứa tên các loài Pokémon, mỗi loài xuất hiện hai lần.
+const cards = ['Pikachu', 'Bulbasaur', 'Charmander', 'Squirtle', 'Jigglypuff', 'Snorlax', 'Eevee', 'Mewtwo', 'Pikachu', 'Bulbasaur', 'Charmander', 'Squirtle', 'Jigglypuff', 'Snorlax', 'Eevee', 'Mewtwo'];
+
+// Khai báo hai mảng để lưu trữ thông tin về thẻ được lật và các cặp thẻ đã khớp.
+let flippedCards = [];
+let matchedCards = [];
+
+// Định nghĩa hàm để trộn mảng theo thứ tự ngẫu nhiên.
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Định nghĩa hàm để tạo bảng chơi với các thẻ Pokémon.
+function createBoard() {
+    // Lấy phần tử HTML có id là 'gameBoard'.
+    const gameBoard = document.getElementById('gameBoard');
+    // Trộn mảng cards để tạo ra một bố cục ngẫu nhiên cho các thẻ.
+    const shuffledCards = shuffle(cards);
+    // Tạo một thẻ div cho mỗi phần tử trong mảng shuffledCards.
+    shuffledCards.forEach((pokemon, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.index = index;
+        card.textContent = '?'; // Đặt nội dung ban đầu của thẻ là '?'.
+        card.addEventListener('click', () => flipCard(card)); // Thêm sự kiện 'click' cho mỗi thẻ để lật thẻ.
+        gameBoard.appendChild(card); // Thêm thẻ vào bảng chơi.
+    });
+}
+
+// Định nghĩa hàm để lật thẻ khi một thẻ được nhấp.
+function flipCard(card) {
+    const index = parseInt(card.dataset.index); // Lấy chỉ số của thẻ từ thuộc tính 'data-index'.
+    // Kiểm tra xem thẻ có thể được lật không và thêm thẻ vào mảng flippedCards.
+    if (flippedCards.length < 2 && !flippedCards.includes(card) && !matchedCards.includes(card)) {
+        card.textContent = cards[index]; // Đặt nội dung của thẻ là tên Pokémon tương ứng.
+        flippedCards.push(card); // Thêm thẻ vào mảng flippedCards.
+        // Nếu đã có hai thẻ được lật, gọi hàm checkMatch() sau một giây.
+        if (flippedCards.length === 2) {
+            setTimeout(checkMatch, 1000);
+        }
+    }
+}
+
+// Định nghĩa hàm để kiểm tra xem hai thẻ đã lật có khớp nhau không.
+function checkMatch() {
+    const [card1, card2] = flippedCards; // Lấy hai thẻ từ mảng flippedCards.
+    const index1 = parseInt(card1.dataset.index); // Lấy chỉ số của thẻ 1.
+    const index2 = parseInt(card2.dataset.index); // Lấy chỉ số của thẻ 2.
+    // Nếu tên của hai thẻ tương ứng trong mảng cards giống nhau, thêm chúng vào mảng matchedCards.
+    if (cards[index1] === cards[index2]) {
+        matchedCards.push(card1, card2);
+        flippedCards = []; // Đặt lại mảng flippedCards.
+        // Nếu đã khớp tất cả các cặp thẻ, hiển thị thông báo chúc mừng.
+        if (matchedCards.length === cards.length) {
+            alert('Congratulations! You won!');
+        }
+    } else {
+        // Nếu hai thẻ không khớp, đặt lại nội dung của thẻ sau một khoảng thời gian và đặt lại mảng flippedCards.
+        setTimeout(() => {
+            card1.textContent = '?';
+            card2.textContent = '?';
+            flippedCards = [];
+        }, 1000);
+    }
+}
+
+// Gọi hàm createBoard() khi trang được tải.
+createBoard();
+
+</script>
+
+</body>
+</html>
